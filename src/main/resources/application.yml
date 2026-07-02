@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: payflowx
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/payflowxdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
