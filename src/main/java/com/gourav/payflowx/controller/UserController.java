@@ -1,6 +1,7 @@
 package com.gourav.payflowx.controller;
 
 import com.gourav.payflowx.dto.request.CreateUserRequest;
+import com.gourav.payflowx.dto.response.ApiResponse;
 import com.gourav.payflowx.dto.response.UserResponse;
 import com.gourav.payflowx.service.UserService;
 import jakarta.validation.Valid;
@@ -17,11 +18,19 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(
             @Valid @RequestBody CreateUserRequest request) {
 
         UserResponse response = userService.createUser(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        ApiResponse<UserResponse> apiResponse =
+                ApiResponse.<UserResponse>builder()
+                        .success(true)
+                        .message("User created successfully")
+                        .data(response)
+                        .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(apiResponse);
     }
 }
