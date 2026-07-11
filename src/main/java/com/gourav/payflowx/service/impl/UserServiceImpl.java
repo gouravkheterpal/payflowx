@@ -1,6 +1,7 @@
 package com.gourav.payflowx.service.impl;
 
 import com.gourav.payflowx.mapper.UserMapper;
+import com.gourav.payflowx.service.WalletService;
 import lombok.extern.slf4j.Slf4j;
 import com.gourav.payflowx.dto.request.CreateUserRequest;
 import com.gourav.payflowx.dto.response.UserResponse;
@@ -10,6 +11,7 @@ import com.gourav.payflowx.repository.UserRepository;
 import com.gourav.payflowx.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,7 +23,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final WalletService walletService;
 
+    @Transactional
     @Override
     public UserResponse createUser(CreateUserRequest request) {
         log.info("Creating user with email {}", request.getEmail());
@@ -41,6 +45,7 @@ public class UserServiceImpl implements UserService {
         user.setId(UUID.randomUUID());
 
         User savedUser = userRepository.save(user);
+        walletService.createWallet(savedUser);
         log.info("User created successfully. UserId={}", savedUser.getId());
 
         return userMapper.toResponse(savedUser);

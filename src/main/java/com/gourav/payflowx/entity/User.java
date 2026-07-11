@@ -26,4 +26,7 @@ public class User extends BaseEntity {
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Wallet wallet;
 }
