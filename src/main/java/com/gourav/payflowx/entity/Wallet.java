@@ -2,6 +2,7 @@ package com.gourav.payflowx.entity;
 
 import com.gourav.payflowx.common.enums.Currency;
 import com.gourav.payflowx.common.enums.WalletStatus;
+import com.gourav.payflowx.exception.InsufficientBalanceException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,4 +35,21 @@ public class Wallet extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private WalletStatus status;
+
+    public void credit(BigDecimal amount) {
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
+        }
+
+        this.balance = this.balance.add(amount);
+    }
+
+    public void debit(BigDecimal amount) {
+
+        if (balance.compareTo(amount) < 0) {
+            throw new InsufficientBalanceException("Insufficient wallet balance");        }
+
+        this.balance = this.balance.subtract(amount);
+    }
 }

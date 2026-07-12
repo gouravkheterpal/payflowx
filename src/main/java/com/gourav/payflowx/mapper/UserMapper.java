@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "wallet", ignore = true)
     User toEntity(CreateUserRequest request);
 
     UserResponse toResponse(User user);
