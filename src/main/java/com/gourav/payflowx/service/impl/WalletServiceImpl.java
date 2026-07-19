@@ -1,12 +1,14 @@
 package com.gourav.payflowx.service.impl;
 
 import com.gourav.payflowx.common.enums.Currency;
+import com.gourav.payflowx.common.enums.TransactionType;
 import com.gourav.payflowx.common.enums.WalletStatus;
 import com.gourav.payflowx.dto.response.WalletResponse;
 import com.gourav.payflowx.entity.User;
 import com.gourav.payflowx.entity.Wallet;
 import com.gourav.payflowx.exception.ResourceNotFoundException;
 import com.gourav.payflowx.repository.WalletRepository;
+import com.gourav.payflowx.service.TransactionService;
 import com.gourav.payflowx.service.WalletService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class WalletServiceImpl implements WalletService {
 
     private final WalletRepository walletRepository;
     private final WalletMapper walletMapper;
+    private final TransactionService transactionService;
 
     @Override
     public Wallet createWallet(User user) {
@@ -74,6 +77,13 @@ public class WalletServiceImpl implements WalletService {
 
         Wallet updatedWallet = walletRepository.save(wallet);
 
+        transactionService.createTransaction(
+                updatedWallet,
+                amount,
+                TransactionType.CREDIT,
+                "Wallet credited"
+        );
+
         return walletMapper.toResponse(updatedWallet);
 
     }
@@ -87,6 +97,13 @@ public class WalletServiceImpl implements WalletService {
         wallet.debit(amount);
 
         Wallet updatedWallet = walletRepository.save(wallet);
+
+        transactionService.createTransaction(
+                updatedWallet,
+                amount,
+                TransactionType.DEBIT,
+                "Wallet debited"
+        );
 
         return walletMapper.toResponse(updatedWallet);
 

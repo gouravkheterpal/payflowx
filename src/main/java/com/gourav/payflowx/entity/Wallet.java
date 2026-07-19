@@ -5,6 +5,8 @@ import com.gourav.payflowx.common.enums.WalletStatus;
 import com.gourav.payflowx.exception.InsufficientBalanceException;
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -52,4 +54,10 @@ public class Wallet extends BaseEntity {
 
         this.balance = this.balance.subtract(amount);
     }
+
+    @OneToMany(
+            mappedBy = "wallet",
+            fetch = FetchType.LAZY
+    )
+    private List<Transaction> transactions = new ArrayList<>();
 }
