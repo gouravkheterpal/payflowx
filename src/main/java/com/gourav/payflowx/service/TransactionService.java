@@ -2,9 +2,12 @@ package com.gourav.payflowx.service;
 
 import com.gourav.payflowx.common.enums.TransactionType;
 import com.gourav.payflowx.dto.response.TransactionResponse;
+import com.gourav.payflowx.dto.response.TransactionResponseDto;
 import com.gourav.payflowx.entity.Transaction;
 import com.gourav.payflowx.entity.Wallet;
+import org.springframework.data.domain.Page;
 
+import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +20,13 @@ public interface TransactionService {
             TransactionType type,
             String description
     );
+
+    Page<TransactionResponseDto> getTransactions(
+            UUID userId,
+            Pageable pageable
+    );
+
+    Page<TransactionResponseDto> getTransactions(UUID userId, java.awt.print.Pageable pageable);
 
     List<TransactionResponse> getTransactions(UUID userId);
 }
