@@ -1,0 +1,23 @@
+ALTER TABLE users
+ADD COLUMN password VARCHAR(255);
+
+ALTER TABLE users
+ADD COLUMN role VARCHAR(20);
+
+ALTER TABLE users
+ADD COLUMN enabled BOOLEAN DEFAULT TRUE;
+
+UPDATE users
+SET
+    password = '',
+    role = 'USER',
+    enabled = TRUE;
+
+ALTER TABLE users
+ALTER COLUMN password SET NOT NULL;
+
+ALTER TABLE users
+ALTER COLUMN role SET NOT NULL;
+
+ALTER TABLE users
+ALTER COLUMN enabled SET NOT NULL;

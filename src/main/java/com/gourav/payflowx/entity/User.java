@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
+import com.gourav.payflowx.common.enums.Role;
 
 @Entity
 @Table(name = "users")
@@ -26,6 +27,17 @@ public class User extends BaseEntity {
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean enabled = true;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Wallet wallet;
