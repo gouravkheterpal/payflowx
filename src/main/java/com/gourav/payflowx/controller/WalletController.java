@@ -70,4 +70,47 @@ public class WalletController {
                 )        );
 
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<WalletResponse>> getMyWallet() {
+
+        WalletResponse response = walletService.getMyWallet();
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Wallet fetched successfully",
+                        response
+                )
+        );
+    }
+
+    @PostMapping("/me/credit")
+    public ResponseEntity<ApiResponse<WalletResponse>> creditMyWallet(
+            @Valid @RequestBody CreditDebitRequest request) {
+
+        WalletResponse response =
+                walletService.creditMyWallet(request.getAmount());
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Amount credited successfully",
+                        response
+                )
+        );
+    }
+
+    @PostMapping("/me/debit")
+    public ResponseEntity<ApiResponse<WalletResponse>> debitMyWallet(
+            @Valid @RequestBody CreditDebitRequest request) {
+
+        WalletResponse response =
+                walletService.debitMyWallet(request.getAmount());
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Amount debited successfully",
+                        response
+                )
+        );
+    }
 }

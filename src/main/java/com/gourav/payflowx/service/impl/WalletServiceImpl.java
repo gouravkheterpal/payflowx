@@ -8,6 +8,7 @@ import com.gourav.payflowx.entity.User;
 import com.gourav.payflowx.entity.Wallet;
 import com.gourav.payflowx.exception.ResourceNotFoundException;
 import com.gourav.payflowx.repository.WalletRepository;
+import com.gourav.payflowx.security.CurrentUserService;
 import com.gourav.payflowx.service.TransactionService;
 import com.gourav.payflowx.service.WalletService;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
     private final WalletMapper walletMapper;
     private final TransactionService transactionService;
+    private final CurrentUserService currentUserService;
 
     @Override
     public Wallet createWallet(User user) {
@@ -73,6 +75,10 @@ public class WalletServiceImpl implements WalletService {
 
         Wallet wallet = getWalletEntity(userId);
 
+        if (wallet.getStatus() == WalletStatus.FROZEN) {
+            throw new IllegalStateException("Wallet is frozen");
+        }
+
         wallet.credit(amount);
 
         Wallet updatedWallet = walletRepository.save(wallet);
@@ -94,6 +100,10 @@ public class WalletServiceImpl implements WalletService {
 
         Wallet wallet = getWalletEntity(userId);
 
+        if (wallet.getStatus() == WalletStatus.FROZEN) {
+            throw new IllegalStateException("Wallet is frozen");
+        }
+
         wallet.debit(amount);
 
         Wallet updatedWallet = walletRepository.save(wallet);
@@ -107,6 +117,60 @@ public class WalletServiceImpl implements WalletService {
 
         return walletMapper.toResponse(updatedWallet);
 
+    }
+
+    @Override
+    public WalletResponse getMyWallet() {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        return getWallet(currentUser.getId());
+    }
+
+    @Override
+    public WalletResponse creditMyWallet(BigDecimal amount) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        return credit(currentUser.getId(), amount);
+    }
+
+    @Override
+    public WalletResponse debitMyWallet(BigDecimal amount) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        return debit(currentUser.getId(), amount);
+    }
+
+    @Override
+    @Transactional
+    public WalletResponse freezeWallet(UUID userId) {
+
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Wallet not found"));
+
+        wallet.setStatus(WalletStatus.FROZEN);
+
+        walletRepository.save(wallet);
+
+        return walletMapper.toResponse(wallet);
+    }
+
+    @Override
+    @Transactional
+    public WalletResponse activateWallet(UUID userId) {
+
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Wallet not found"));
+
+        wallet.setStatus(WalletStatus.ACTIVE);
+
+        walletRepository.save(wallet);
+
+        return walletMapper.toResponse(wallet);
     }
 
 }

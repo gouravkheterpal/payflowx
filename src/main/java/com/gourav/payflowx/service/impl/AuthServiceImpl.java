@@ -3,12 +3,15 @@ package com.gourav.payflowx.service.impl;
 import com.gourav.payflowx.auth.AuthService;
 import com.gourav.payflowx.common.enums.Role;
 import com.gourav.payflowx.dto.request.LoginRequest;
+import com.gourav.payflowx.dto.request.RefreshTokenRequest;
 import com.gourav.payflowx.dto.request.RegisterRequest;
 import com.gourav.payflowx.dto.response.AuthResponse;
+import com.gourav.payflowx.entity.RefreshToken;
 import com.gourav.payflowx.entity.User;
 import com.gourav.payflowx.exception.ResourceAlreadyExistsException;
 import com.gourav.payflowx.repository.UserRepository;
 import com.gourav.payflowx.security.jwt.JwtService;
+import com.gourav.payflowx.service.RefreshTokenService;
 import com.gourav.payflowx.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -58,12 +62,16 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails =
                 userDetailsService.loadUserByUsername(savedUser.getEmail());
 
-        String token = jwtService.generateToken(userDetails);
-
         log.info("User registered successfully {}", savedUser.getEmail());
 
+        String accessToken = jwtService.generateToken(userDetails);
+
+        RefreshToken refreshToken =
+                refreshTokenService.createRefreshToken(savedUser);
+
         return AuthResponse.builder()
-                .token(token)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken.getToken())
                 .build();
     }
 
@@ -77,15 +85,51 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         UserDetails userDetails =
-                userDetailsService.loadUserByUsername(request.getEmail());
+                userDetailsService.loadUserByUsername(user.getEmail());
 
-        String token = jwtService.generateToken(userDetails);
+        String accessToken = jwtService.generateToken(userDetails);
 
-        log.info("User logged in successfully {}", request.getEmail());
+        RefreshToken refreshToken =
+                refreshTokenService.createRefreshToken(user);
 
         return AuthResponse.builder()
-                .token(token)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken.getToken())
                 .build();
     }
+
+    @Override
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+
+        RefreshToken refreshToken =
+                refreshTokenService.verifyRefreshToken(request.getRefreshToken());
+
+        User user = refreshToken.getUser();
+
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(user.getEmail());
+
+        String accessToken = jwtService.generateToken(userDetails);
+
+        RefreshToken newRefreshToken =
+                refreshTokenService.rotateRefreshToken(refreshToken);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(newRefreshToken.getToken())
+                .build();
+    }
+
+    @Override
+    public void logout(RefreshTokenRequest request) {
+
+        refreshTokenService.revokeRefreshToken(
+                request.getRefreshToken()
+        );
+    }
+
 }

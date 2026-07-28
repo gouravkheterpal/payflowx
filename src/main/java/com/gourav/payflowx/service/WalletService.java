@@ -17,4 +17,13 @@ public interface WalletService {
 
     WalletResponse debit(UUID userId, BigDecimal amount);
 
+    WalletResponse getMyWallet();
+
+    WalletResponse creditMyWallet(BigDecimal amount);
+
+    WalletResponse debitMyWallet(BigDecimal amount);
+
+    WalletResponse freezeWallet(UUID userId);
+
+    WalletResponse activateWallet(UUID userId);
 }

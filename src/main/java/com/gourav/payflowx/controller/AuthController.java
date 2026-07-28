@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.gourav.payflowx.dto.request.RefreshTokenRequest;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -35,5 +36,23 @@ public class AuthController {
         AuthResponse response = authService.login(request);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(
+            @Valid @RequestBody RefreshTokenRequest request) {
+
+        AuthResponse response = authService.refreshToken(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @Valid @RequestBody RefreshTokenRequest request) {
+
+        authService.logout(request);
+
+        return ResponseEntity.noContent().build();
     }
 }
