@@ -30,6 +30,9 @@ public class WalletServiceImpl implements WalletService {
     private final WalletMapper walletMapper;
     private final TransactionService transactionService;
     private final CurrentUserService currentUserService;
+    private String generateTransactionReference() {
+        return "TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
 
     @Override
     public Wallet createWallet(User user) {
@@ -84,9 +87,10 @@ public class WalletServiceImpl implements WalletService {
         Wallet updatedWallet = walletRepository.save(wallet);
 
         transactionService.createTransaction(
-                updatedWallet,
+                wallet,
                 amount,
                 TransactionType.CREDIT,
+                generateTransactionReference(),
                 "Wallet credited"
         );
 
@@ -109,9 +113,10 @@ public class WalletServiceImpl implements WalletService {
         Wallet updatedWallet = walletRepository.save(wallet);
 
         transactionService.createTransaction(
-                updatedWallet,
+                wallet,
                 amount,
                 TransactionType.DEBIT,
+                generateTransactionReference(),
                 "Wallet debited"
         );
 
