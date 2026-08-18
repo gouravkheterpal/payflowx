@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.Version;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -19,6 +20,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Wallet extends BaseEntity {
+
+    @Version
+    @Column(nullable = false)
+    @Builder.Default
+    private Long version = 0L;
 
     @Id
     private UUID id;

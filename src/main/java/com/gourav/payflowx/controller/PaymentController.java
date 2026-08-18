@@ -20,13 +20,18 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/transfer")
-    @Operation(summary = "Transfer money to another user")
     public ResponseEntity<TransferResponse> transfer(
-            @Valid @RequestBody TransferRequest request) {
 
-        TransferResponse response = paymentService.transfer(request);
+            @RequestHeader("Idempotency-Key")
+            String idempotencyKey,
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(response);
+            @Valid
+            @RequestBody
+            TransferRequest request) {
+
+        TransferResponse response =
+                paymentService.transfer(idempotencyKey, request);
+
+        return ResponseEntity.ok(response);
     }
 }

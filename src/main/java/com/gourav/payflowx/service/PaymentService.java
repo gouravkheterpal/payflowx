@@ -5,6 +5,9 @@ import com.gourav.payflowx.dto.response.TransferResponse;
 
 public interface PaymentService {
 
-    TransferResponse transfer(TransferRequest request);
+    TransferResponse transfer(
+            String idempotencyKey,
+            TransferRequest request
+    );
 
 }
