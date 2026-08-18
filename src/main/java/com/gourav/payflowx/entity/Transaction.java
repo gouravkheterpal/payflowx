@@ -35,7 +35,7 @@ public class Transaction extends BaseEntity {
     @Column(nullable = false)
     private TransactionStatus status;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String reference;
 
     @Column(length = 255)

@@ -18,6 +18,7 @@ public interface TransactionService {
             Wallet wallet,
             BigDecimal amount,
             TransactionType type,
+            String reference,
             String description
     );
 
@@ -25,8 +26,6 @@ public interface TransactionService {
             UUID userId,
             Pageable pageable
     );
-
-    Page<TransactionResponseDto> getTransactions(UUID userId, java.awt.print.Pageable pageable);
 
     List<TransactionResponse> getTransactions(UUID userId);
 }

@@ -38,6 +38,7 @@ public class TransactionServiceImpl implements TransactionService {
             Wallet wallet,
             BigDecimal amount,
             TransactionType type,
+            String reference,
             String description) {
 
         log.info("Creating {} transaction for walletId={}, amount={}",
@@ -49,7 +50,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .amount(amount)
                 .type(type)
                 .status(TransactionStatus.SUCCESS)
-                .reference(generateTransactionReference())
+                .reference(reference)
                 .description(description)
                 .build();
 
@@ -93,8 +94,4 @@ public class TransactionServiceImpl implements TransactionService {
                 .map(transactionMapper::toDto);
     }
 
-    @Override
-    public Page<TransactionResponseDto> getTransactions(UUID userId, java.awt.print.Pageable pageable) {
-        return null;
-    }
 }
