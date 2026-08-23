@@ -17,6 +17,8 @@ import com.gourav.payflowx.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.gourav.payflowx.kafka.event.PaymentEvent;
+import com.gourav.payflowx.kafka.producer.PaymentEventProducer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,6 +34,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final TransactionService transactionService;
     private final UserRepository userRepository;
     private final PaymentRequestRepository paymentRequestRepository;
+    private final PaymentEventProducer paymentEventProducer;
 
     private String generateTransactionReference() {
         return "TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -142,6 +145,17 @@ public class PaymentServiceImpl implements PaymentService {
                         .build();
 
         paymentRequestRepository.save(paymentRequest);
+
+        PaymentEvent paymentEvent = PaymentEvent.builder()
+                .transactionId(reference)
+                .senderEmail(sender.getEmail())
+                .receiverEmail(receiver.getEmail())
+                .amount(request.getAmount())
+                .status("SUCCESS")
+                .transferredAt(LocalDateTime.now())
+                .build();
+
+        paymentEventProducer.publish(paymentEvent);
 
         // 15. Return response
         return TransferResponse.builder()
